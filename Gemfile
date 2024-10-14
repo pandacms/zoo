@@ -7,8 +7,7 @@ gem "rails", github: "rails/rails", branch: "main"
 # gem "rails", "~> 7.2"
 
 # Panda CMS
-gem "panda_cms", path: "../panda_cms"
-# gem "panda_cms", github: "pandacms/panda_cms", branch: "main"
+gem "panda_cms", github: "pandacms/panda_cms", branch: "main"
 
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
