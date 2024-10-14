@@ -1,0 +1,40 @@
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.tabSize": 2,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "peacock.color": "#002b6c",
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.classRegex": [
+    "\\bclass:\\s*'([^']*)'",
+    "\\bclass:\\s*\"([^\"]*)\""
+  ],
+  "tailwindCSS.includeLanguages": {
+    "erb": "html",
+    "html": "html",
+    "html.erb": "html",
+    "javascript": "javascript"
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#003f9f",
+    "activityBar.background": "#003f9f",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#20000d",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#003f9f",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#003f9f",
+    "statusBarItem.remoteBackground": "#002b6c",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#002b6c",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#002b6c99",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "statusBar.background": "#002b6c"
+  }
+}
