@@ -1,101 +1,98 @@
-name: CI
+---
+name: "App Tests"
 
-on:
+on: # yamllint disable-line rule:truthy
   pull_request:
+    branches:
+      - "*"
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+  merge_group:
+    types: [checks_requested]
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-
+  seclint:
+    name: "Security Checks & Linters"
+    runs-on: "ubuntu-latest"
+    env:
+      BUNDLE_PATH: "vendor/bundle"
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: "actions/checkout@v4"
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: "ruby/setup-ruby@v1"
         with:
-          ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+      - name: "Bundler Audit"
+        run: "bundle exec bundle-audit --update"
 
-  scan_js:
-    runs-on: ubuntu-latest
+      - name: "Brakeman"
+        run: "bundle exec brakeman --quiet"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: "StandardRB Check"
+        run: "bundle exec standardrb"
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+      - name: "ERB Check"
+        run: "bundle exec erblint app/views --lint-all"
 
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
-  test:
-    runs-on: ubuntu-latest
-
+  specs:
+    name: "App Specs"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      BUNDLE_PATH: "vendor/bundle"
     services:
       postgres:
-        image: postgres
+        image: postgres:latest
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips postgresql-client
+      - uses: "actions/checkout@v4"
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: "Update VERSION"
+        env:
+          VERSION: ${{ github.event.pull_request.head.sha }}
+        run: |
+          echo "${VERSION}" >> VERSION
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: "Set timezone"
+        run: |
+          sudo timedatectl set-timezone Europe/London
+
+      - name: "Setup Ruby"
+        uses: "ruby/setup-ruby@v1"
         with:
-          ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Run tests
+      - name: "Run tests"
         env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+          DATABASE_URL: "postgres://postgres:password@localhost:5432/test"
+          REDIS_URL: "redis://localhost:6379/0"
+          RAILS_ENV: "test"
+          PG_USER: "postgres"
+          CAPYBARA_ARTIFACTS: "../tmp/capybara"
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+        run: |
+          bundle exec rake db:schema:load
+          bundle exec rspec -f j -o tmp/rspec_results.json -f p
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
+          path: ${{ github.workspace }}/spec/tmp/capybara
           if-no-files-found: ignore
