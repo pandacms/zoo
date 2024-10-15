@@ -65,7 +65,7 @@ group :development, :test do
   gem "annotate", ">= 3.2.0"
   gem "erb_lint" # , require: false
   gem "letter_opener_web", "~> 2.0"
-  gem "rspec-rails", "~> 6.0"
+  gem "rspec-rails", "~> 7.0"
   gem "rspec-retry"
   gem "standard"
 
