@@ -37,7 +37,7 @@ GIT
 
 GIT
   remote: https://github.com/rails/rails.git
-  revision: 701af3732145d5b1e598466bd73eb63b5ac21674
+  revision: 094aeca1378fd901510959a956fc887df745f153
   branch: main
   specs:
     actioncable (8.0.0.beta1)
@@ -458,7 +458,7 @@ GEM
     nap (1.1.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.17)
+    net-imap (0.5.0)
       date
       net-protocol
     net-pop (0.1.2)
